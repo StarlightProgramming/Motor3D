@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <canvas id = "camara"></canvas>
+    <script>
+        const canvas = document.getElementById("camara");
+        const ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        class Vector2 {
+            constructor(x = 0, y = 0) {
+                this.x = x;
+                this.y = y;
+            }
+        }
+        class Vector3 {
+
+            constructor(x = 0, y = 0, z = 0) {
+                this.x = x;
+                this.y = y;
+                this.z = z;
+            }
+            add(vector) {
+                return new Vector3(
+                    this.x + vector.x,
+                    this.y + vector.y,
+                    this.z + vector.z
+                );
+            }
+            subtract(vector) {
+                return new Vector3(
+                    this.x - vector.x,
+                    this.y - vector.y,
+                    this.z - vector.z
+                );
+            }
+            multiply(vector) {
+                return new Vector3(
+                    this.x * vector.x,
+                    this.y * vector.y,
+                    this.z * vector.z
+                );
+            }
+            rotateX(rad) {
+                return new Vector3(
+                    this.x,
+                    this.y * Math.cos(rad) - this.z * Math.sin(rad),
+                    this.y * Math.sin(rad) + this.z * Math.cos(rad)
+                );
+            }
+            rotateY(rad) {
+                return new Vector3(
+                    this.x * Math.cos(rad) + this.z * Math.sin(rad),
+                    this.y,
+                    -this.x * Math.sin(rad) + this.z * Math.cos(rad)
+                );
+            }
+            rotateZ(rad) {
+                return new Vector3(
+                    this.x * Math.cos(rad) - this.y * Math.sin(rad),
+                    this.x * Math.sin(rad) + this.y * Math.cos(rad),
+                    this.z
+                );
+            }
+            length() {
+                return Math.sqrt(
+                    this.x ** 2 +
+                    this.y ** 2 +
+                    this.z ** 2
+                );
+            }
+            normalize() {
+                const length = this.length();
+
+                if (length === 0)
+                {   
+                    return new Vector3();
+                }
+                return new Vector3(
+                    this.x / length,
+                    this.y / length,
+                    this.z / length
+                );
+            }
+            toString() {
+                return `(${this.x.toFixed(6)}, ${this.y.toFixed(6)}, ${this.z.toFixed(6)})`;
+            }
+        }
+        class Figura3D {
+            constructor() {
+                this.vertices = [];
+                this.aristas = [];
+            }
+            agregarVertice(vertice) {
+                this.vertices.push(vertice);
+            }
+            agregarArista(arista) {
+                this.aristas.push(arista);
+            }
+            mover(vec) {
+                for (let i = 0; i < this.vertices.length; i++) {
+                    this.vertices[i] = this.vertices[i].add(vec);
+                }
+            }
+            expand(num) {
+                for (let i = 0; i < this.vertices.length; i++) {
+                    this.vertices[i] = this.vertices[i].multiply(num);
+                }
+            }
+            rotateX(rad) {
+                for (let i = 0; i < this.vertices.length; i++) {
+                    this.vertices[i] = this.vertices[i].rotateX(rad);
+                }
+            }
+            rotateY(rad) {
+                for (let i = 0; i < this.vertices.length; i++) {
+                    this.vertices[i] = this.vertices[i].rotateY(rad);
+                }
+            }
+            rotateZ(rad) {
+                for (let i = 0; i < this.vertices.length; i++) {
+                    this.vertices[i] = this.vertices[i].rotateZ(rad);
+                }
+            }
+            mostrar() {
+                for (const vertice of this.vertices) {
+                    console.log(vertice.toString());
+                }
+
+                for (const arista of this.aristas) {
+                    console.log(arista);
+                }
+            }
+
+        }
+        class Camara{
+            constructor(x = 0, y = 0, z = 0, focal = 100) {
+                this.position = new Vector3(x, y, z);
+                this.rotation = new Vector3(0, 0, 0);
+                this.focal = focal;
+
+                this.near = 0.1;
+                this.far = 1000;
+                /*
+                constructor() {
+                this.vertices = [];
+                this.aristas = [];
+            }
+                */
+            }
+        }
+        
+        function proyectar(vertice)
+        {
+            let vert = new Vector3();
+            vert = vertice.subtract(cam.position);
+            vert = vert.rotateX(-cam.rotation.x);
+            vert = vert.rotateY(-cam.rotation.y);
+            vert = vert.rotateZ(-cam.rotation.z);
+            if (vert.z <= 0) {
+                return null;
+            }
+            let x = vert.x*cam.focal/vert.z;
+            let y = vert.y*cam.focal/vert.z;
+
+            return new Vector2(x, y);
+        }
+        
+        let cam = new Camara(0, 0, -500, 100);
+        let cubo = new Figura3D();
+        
+        for (let x = -100; x <= 100; x+= 200)
+        {
+            for (let y = -100; y <= 100; y+= 200)
+            {
+                for (let z = -100; z <= 100; z+= 200)
+                {
+                    cubo.agregarVertice(new Vector3(x, y, z));
+                }
+            }
+        }
+        for (let i = 0; i < 8; i++)
+        {
+            for(let l = i+1; l < 8; l++)
+            {
+                let dif = 0;
+                if (cubo.vertices[i].x != cubo.vertices[l].x)
+                {
+                    dif++;
+                }
+                if (cubo.vertices[i].y != cubo.vertices[l].y)
+                {
+                    dif++;
+                }
+                if (cubo.vertices[i].z != cubo.vertices[l].z)
+                {
+                    dif++;
+                }
+                if(dif == 1)
+                {
+                    cubo.agregarArista([i, l]);
+                }
+            }
+        }
+        function loop()
+        {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            let vertices = [];
+            for(let i = 0; i < 8; i++)
+            {
+                vertices.push(proyectar(cubo.vertices[i]));
+                console.log(vertices[i]);
+            }
+            //console.log(vertices);
+            ctx.strokeStyle = "red";
+            ctx.lineWidth = 5;
+            cubo.aristas.forEach(arista => {
+                if (vertices[arista[0]] != null && vertices[arista[1]] != null)
+                {
+                    ctx.beginPath();
+                    ctx.moveTo(vertices[arista[0]].x + 300, vertices[arista[0]].y + 300);
+                    ctx.lineTo(vertices[arista[1]].x + 300, vertices[arista[1]].y + 300);
+                    ctx.stroke();
+                }
+            });
+            cubo.rotateX(1 * Math.PI / 180);
+            cubo.rotateZ(2 * Math.PI / 180);
+            requestAnimationFrame(loop);
+        }
+        loop();
+    </script>
+</body>
+</html>
