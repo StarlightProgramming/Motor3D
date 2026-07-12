@@ -29,7 +29,7 @@ Contiene la versión más reciente del motor.
 - [x] Triangulos
 - [x] Painter´s algoritm
 - [x] Iluminacion basica
-- [ ] importacion de modelos
+- [x] importacion de modelos
 - [ ] rasterizador propio
 - [ ] Z Buffer
 - [ ] Interpolacion
