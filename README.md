@@ -30,13 +30,14 @@ Contiene la versión más reciente del motor.
 - [x] Painter´s algoritm
 - [x] Iluminacion basica
 - [x] importacion de modelos
-- [ ] rasterizador propio
-- [ ] Z Buffer
-- [ ] Interpolacion
+- [x] rasterizador propio
+- [x] Z Buffer
+- [x] Interpolacion
 - [ ] Texturas
 - [ ] Iluminacion avanzada
 - [ ] Sombras
 - [ ] Jerarquias
 - [ ] Animaciones
+- [ ] importacion de mas formatos
 - [ ] Optimizacion
 - [ ] Mas
